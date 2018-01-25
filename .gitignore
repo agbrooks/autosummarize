@@ -1,0 +1,10 @@
+# Add any directories, files, or patterns you don't want to be tracked by version control
+aclocal.m4
+autom4te.cache
+autoscan*.log
+config.h
+config.status
+Makefile
+stamp-h1
+src/**.o
+summarize
