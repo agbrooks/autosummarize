@@ -7,6 +7,8 @@
 
 #include "Sentence.hpp"
 
+#include "config.h"
+
 class KeywordExtractor {
 public:
         explicit KeywordExtractor(double pct_keywords);

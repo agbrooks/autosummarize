@@ -3,6 +3,8 @@
 
 #include "SparsetenceFactory.hpp"
 
+#include "config.h"
+
 class TextRank {
 public:
         TextRank(

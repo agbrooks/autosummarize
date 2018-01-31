@@ -3,13 +3,11 @@
 
 #include <vector>
 
+#include "config.h"
+
 class Sparsetence {
 public:
         explicit Sparsetence(const std::vector<unsigned int> &kw_ids);
-        /*
-        Sparsetence(const Sparsetence &&other);
-        Sparsetence& operator=(const Sparsetence &&other);
-        */
 
         std::vector<unsigned int> keywords;
 

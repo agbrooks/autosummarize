@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "config.h"
+
 using namespace std;
 
 class Sentence {

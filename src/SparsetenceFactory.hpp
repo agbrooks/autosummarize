@@ -4,6 +4,8 @@
 #include "KeywordExtractor.hpp"
 #include "Sparsetence.hpp"
 
+#include "config.h"
+
 class SparsetenceFactory : public KeywordExtractor {
 public:
         explicit SparsetenceFactory(unsigned int num_keywords);
