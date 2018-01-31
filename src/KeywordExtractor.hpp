@@ -9,14 +9,18 @@
 
 class KeywordExtractor {
 public:
-        KeywordExtractor();
+        explicit KeywordExtractor(double pct_keywords);
 
-        void                       consume(Sentence &s);
-        void                       consume(string &word);
+        unsigned int               pct_keywords;
+
+        void                       consume(const Sentence &s);
+        void                       consume(const string &word);
         unsigned int               lookup_id(const string &word);
         const string               lookup_word(unsigned int id);
-        const vector<unsigned int> keyword_ids(unsigned int howmany);
-        const vector<string>       keywords(unsigned int howmany);
+        const vector<unsigned int> keyword_ids();
+        const vector<string>       keywords();
+        bool                       is_keyword(const string &word);
+        bool                       is_keyword_id(unsigned int id);
         unsigned int               unique_words();
 
 private:
@@ -25,10 +29,15 @@ private:
         unordered_map<string, unsigned int>       string_table;
         unordered_map<unsigned int, string>       inverse_table;
 
-        bool         is_ignorable_id(unsigned int id);
-        unsigned int lookup_or_add_word(const string &word);
+        vector<string>                            keyword_list;
+        vector<unsigned int>                      keyword_id_list;
+        bool                                      words_added;
 
-        static bool is_ignorable_word(const string &word);
+        void         recompute_keywords(void);
+        bool         is_ignorable_id(unsigned int id);
+        static bool  is_ignorable_word(const string &word);
+
+        unsigned int lookup_or_add_word(const string &word);
 
 };
 

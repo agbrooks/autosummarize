@@ -1,25 +1,29 @@
+#include <algorithm>
+#include <cmath>
 #include <memory>
 #include <set>
 #include <string>
 
 #include "KeywordExtractor.hpp"
 
-KeywordExtractor::KeywordExtractor()
+KeywordExtractor::KeywordExtractor(double pct_keywords)
+        : pct_keywords(pct_keywords)
 {
-        next_index = 0;
+        next_index  = 0;
+        words_added = true;
 }
 
 void
-KeywordExtractor::consume(Sentence &s)
+KeywordExtractor::consume(const Sentence &s)
 {
-        for (string &word : s.words)
+        for (auto &word : s.words)
         {
                 consume(word);
         }
 }
 
 void
-KeywordExtractor::consume(string &word)
+KeywordExtractor::consume(const string &word)
 {
         unsigned int id = lookup_or_add_word(word);
 
@@ -30,6 +34,8 @@ KeywordExtractor::consume(string &word)
         } else {
                 counts[id]++;
         }
+
+        words_added = true;
 }
 
 unsigned int
@@ -45,55 +51,37 @@ KeywordExtractor::lookup_word(unsigned int id)
 }
 
 const vector<unsigned int>
-KeywordExtractor::keyword_ids(unsigned int howmany)
+KeywordExtractor::keyword_ids()
 {
-        using Count = unsigned int;
-        using IdVec = vector<unsigned int>;
-        using Id    = unsigned int;
-
-        /* 'Inverse' of count map. */
-        unique_ptr<map<Count, IdVec>> inv_counts;
-
-        /* Populate inv_counts with inverse of counts. */
-        for (pair<const Id, Count> p : counts)
+        if (words_added)
         {
-                unsigned int id        = p.first;
-                unsigned int frequency = p.second;
-
-                if (!inv_counts->count(p.second))
-                {
-                        vector<Id> singleton{id};
-                        inv_counts->emplace(frequency, singleton);
-                } else {
-                        inv_counts->at(frequency).push_back(id);
-                }
+                recompute_keywords();
         }
-
-        /* Now, select the top 'howmany' keyword ids from the inverse freq map. */
-        vector<Id> ids;
-        for (auto rit = inv_counts->rbegin(); rit != inv_counts->rend(); ++rit)
-        {
-                for (Id i : rit->second)
-                {
-                        if (ids.size() < howmany && !is_ignorable_id(i))
-                        {
-                                ids.push_back(i);
-                        }
-                }
-        }
-        return ids;
+        return keyword_id_list;
 }
 
 const vector<string>
-KeywordExtractor::keywords(unsigned int howmany)
+KeywordExtractor::keywords()
 {
-        const vector<unsigned int> ids = keyword_ids(howmany);
-        vector<string> kw_strings;
-        for (unsigned int id : ids)
+        if (words_added)
         {
-                kw_strings.push_back(lookup_word(id));
+                recompute_keywords();
         }
-        return kw_strings;
+        return keyword_list;
+}
+
+bool
+KeywordExtractor::is_keyword(const string &word)
+{
+        const vector<string> kws = keywords();
+        return std::find(kws.begin(), kws.end(), word) != kws.end();
+}
+
+bool
+KeywordExtractor::is_keyword_id(unsigned int id)
+{
+        const vector<unsigned int> ids = keyword_ids();
+        return std::find(ids.begin(), ids.end(), id) != ids.end();
 }
 
 unsigned int
@@ -164,4 +152,63 @@ KeywordExtractor::is_ignorable_word(const string &word)
         };
         /* If the word is in the set, it should be ignored. */
         return faux_amis.count(word) > 0;
+}
+
+void
+KeywordExtractor::recompute_keywords()
+{
+        using Count = unsigned int;
+        using IdVec = vector<unsigned int>;
+        using Id    = unsigned int;
+
+        unsigned int num_keywords = std::floor(unique_words() * pct_keywords);
+
+        /* Reset any keyword-related lists. */
+        keyword_id_list.clear();
+        keyword_list.clear();
+
+        /* 'Inverse' of count map. */
+        unique_ptr<map<Count, IdVec>> inv_counts;
+
+        /* Populate inv_counts with inverse of counts. */
+        for (pair<const Id, Count> p : counts)
+        {
+                unsigned int id        = p.first;
+                unsigned int frequency = p.second;
+
+                if (!inv_counts->count(p.second))
+                {
+                        vector<Id> singleton{id};
+                        inv_counts->emplace(frequency, singleton);
+                } else {
+                        inv_counts->at(frequency).push_back(id);
+                }
+        }
+
+        /*
+         * Generate the keyword ID list by selecting the most frequent keyword
+         * ids from the inverse frequency map.
+         */
+        for (auto rit = inv_counts->rbegin(); rit != inv_counts->rend(); ++rit)
+        {
+                for (Id i : rit->second)
+                {
+                        if (keyword_id_list.size() < num_keywords
+                            && !is_ignorable_id(i))
+                        {
+                                keyword_id_list.push_back(i);
+                        }
+                }
+        }
+
+        /*
+         * Regenerate the keyword list too.
+         */
+        for (auto kw_id : keyword_id_list)
+        {
+                keyword_list.push_back(lookup_word(kw_id));
+        }
+
+        /* No new words added since last keyword recompute. */
+        words_added = false;
 }

@@ -2,20 +2,25 @@
 
 #include "SparsetenceFactory.hpp"
 
-SparsetenceFactory::SparsetenceFactory()
-        : KeywordExtractor()
+SparsetenceFactory::SparsetenceFactory(unsigned int num_keywords)
+        : KeywordExtractor(num_keywords)
 { }
-
-/* FIXME: Need a way to know how many keywords to use in sparsification. */
 
 const Sparsetence
 SparsetenceFactory::sparsify(const Sentence &sentence)
 {
-        vector<unsigned int> keywords_present;
-        // turn sentence words -> word ids
-        // filter word ids based on whether they're keywords
-        // make sparsetence
-        return Sparsetence(keywords_present);
+        /* Extract keyword IDs from the sentence. */
+        vector<unsigned int> word_ids;
+        for (auto word : sentence.words)
+        {
+                const unsigned int keyword_id = lookup_id(word);
+                if (is_keyword_id(keyword_id))
+                {
+                        word_ids.push_back(keyword_id);
+                }
+        }
+
+        return Sparsetence(word_ids);
 }
 
 const vector<Sparsetence>

@@ -4,11 +4,11 @@
 #include "KeywordExtractor.hpp"
 #include "Sparsetence.hpp"
 
-class SparsetenceFactory : KeywordExtractor {
+class SparsetenceFactory : public KeywordExtractor {
 public:
-        SparsetenceFactory();
+        explicit SparsetenceFactory(unsigned int num_keywords);
 
-        const vector<unsigned int> keywords;
+        vector<unsigned int> keyword_ids;
 
         const Sparsetence         sparsify(const Sentence &sentence);
         const vector<Sparsetence> sparsify(const vector<Sentence> &sentences);
