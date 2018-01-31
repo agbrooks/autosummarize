@@ -12,13 +12,16 @@ AC_CONFIG_FILES([Makefile])
 
 # Checks for programs.
 AC_PROG_CXX
+AC_PROG_CC
 
 # Checks for libraries.
 
 # Checks for header files.
+AC_CHECK_HEADER_STDBOOL
 
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
+AC_CHECK_FUNCS([floor])
 
 AC_OUTPUT
