@@ -20,6 +20,7 @@ AC_PROG_CC
 AC_CHECK_HEADER_STDBOOL
 
 # Checks for typedefs, structures, and compiler characteristics.
+AX_CHECK_COMPILE_FLAG([-std=c++11])
 
 # Checks for library functions.
 AC_CHECK_FUNCS([floor])

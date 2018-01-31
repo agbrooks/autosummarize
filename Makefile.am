@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I$(top_srcdir)/src
+AM_CPPFLAGS = -std=c++11 -I$(top_srcdir)/src -Wall -Wextra -Wpedantic
 
 bin_PROGRAMS = autosummarize
 
