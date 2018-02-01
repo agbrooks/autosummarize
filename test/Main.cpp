@@ -1,3 +1,4 @@
+#include <cppunit/CompilerOutputter.h>
 #include <cppunit/TestCase.h>
 #include <cppunit/ui/text/TextTestRunner.h>
 
@@ -9,14 +10,18 @@ main(int argc, char **argv)
         (void) argc;
         (void) argv;
 
-        /* Text runner */
+        SentenceTestCase *sentence_test = new SentenceTestCase();
+
+        /* Get top level suite from the registry */
+        CppUnit::Test *suite = CppUnit::TestFactoryRegistry::getRegistry().makeTest();
+
+        /* Setup a text test runner and add relevant tests */
         CppUnit::TextTestRunner runner;
+        runner.addTest(suite);
+        runner.addTest(sentence_test);
 
-        /* Test cases */
-        SentenceTestCase sentence_test;
-        runner.addTest(&sentence_test);
+        runner.setOutputter( new CppUnit::CompilerOutputter( &runner.result(), std::cerr ));
 
-        /* Run tests */
-        runner.run();
-        return 0;
+        /* Run tests - give a non-zero exit code if unsuccessful! */
+        return runner.run() ? 0 : 1;
 }
