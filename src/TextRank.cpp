@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 
 #include "TextRank.hpp"
@@ -17,7 +18,7 @@ TextRank::TextRank(
 {
         compute_sparsetences(sentences);
         compute_similarities();
-        compute_rank();
+        compute_order();
 }
 
 bool
@@ -51,14 +52,29 @@ TextRank::update_scores()
 }
 
 void
-TextRank::compute_rank()
+TextRank::compute_order()
 {
         unsigned long iter = 0;
         do
         {
                 update_scores();
                 iter++;
+                old_scores = scores;
         } while (!has_converged() && iter < max_iter);
+
+        order.resize(scores.size());
+        for (unsigned int i = 0; i < order.size(); i++)
+        {
+                order[i] = i;
+        }
+
+        sort(
+                order.begin(),
+                order.end(),
+                [this](size_t i, size_t j)
+                {
+                        return scores[i] < scores[j];
+                });
 }
 
 void

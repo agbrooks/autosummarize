@@ -9,17 +9,17 @@ class TextRank {
 public:
         TextRank(
                 const vector<Sentence> &sentences,
-                double                 pct_keywords=100,
-                double                 dee=0.85,
-                unsigned long          max_iter=0,
-                double                 tolerance=1e-10
+                double                 pct_keywords,
+                double                 dee,
+                unsigned long          max_iter,
+                double                 tolerance
                 );
 
-        const vector<unsigned int> order;
-        const unsigned long        max_iter;
-        const double               pct_keywords;
-        const double               dee;
-        const double               tolerance;
+        vector<unsigned int> order;
+        const unsigned long  max_iter;
+        const double         pct_keywords;
+        const double         dee;
+        const double         tolerance;
 
 private:
         vector<Sparsetence>     sparsetences;
@@ -29,7 +29,7 @@ private:
         vector<double>          scores;
         vector<double>          old_scores;
 
-        void compute_rank();
+        void compute_order();
         void compute_similarities();
         void compute_sparsetences(const vector<Sentence> &sentences);
 
