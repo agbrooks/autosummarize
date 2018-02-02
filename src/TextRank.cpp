@@ -68,13 +68,12 @@ TextRank::compute_order()
                 order[i] = i;
         }
 
-        sort(
-                order.begin(),
-                order.end(),
+        sort(order.begin(),order.end(),
                 [this](size_t i, size_t j)
                 {
                         return scores[i] < scores[j];
-                });
+                }
+            );
 }
 
 void
