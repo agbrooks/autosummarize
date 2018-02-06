@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -std=c++11 -I$(top_srcdir)/src -Wall -Wextra -Wpedantic
+AM_CPPFLAGS = -std=c++14 -I$(top_srcdir)/src -Wall -Wextra -Wpedantic
 
 program_cxx_source = \
 	src/KeywordExtractor.cpp \

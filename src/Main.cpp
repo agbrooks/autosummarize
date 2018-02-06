@@ -24,12 +24,12 @@ public:
 
         void validate() const
         {
-                if (compression <= 0.0 || compression >= 1.0)
+                if (compression <= 0.0 || compression > 1.0)
                 {
                         cerr << "Compression should be between 0.0 and 1.0.";
                         exit(1);
                 }
-                if (pct_keywords <= 0.0 || pct_keywords >= 1.0)
+                if (pct_keywords <= 0.0 || pct_keywords > 1.0)
                 {
                         cerr << "Pct. keywords should be between 0.0 and 1.0.";
                         exit(1);
@@ -125,19 +125,18 @@ ProgramOptions::ProgramOptions(int argc, char **argv)
         /*
          * XXX: We can't put these with the other static constexprs
          * in the class since doing so results in a linker error.
+         * C++17 changes this behavior, but we're waiting until then.
          */
         static constexpr struct argp_option options[] = {
-                {"verbose", 'v', 0, 0,
-                 "enable verbose output", 0},
-                {"compression", 'c', 0, 0,
+                {"compression", 'c', "percent (as float)", 0,
                  "percentage of sentences to retain, defaults to 0.35", 0},
                 {"keywords", 'k', 0, 0,
                  "percentage of words to retain as sentence keywords, defaults to 1.0", 0},
-                {"d", 'd', 0, 0,
+                {"d", 'd', "float", 0,
                  "'d' parameter for TextRank, defaults to 0.85", 0},
-                {"tolerance", 't', 0, 0,
+                {"tolerance", 't', "float", 0,
                  "mean error after which we consider the scoring phase converged, defaults to 1e-10", 0},
-                {"maxit", 'i', 0, 0,
+                {"maxit", 'i', "int", 0,
                  "maximum number of scoring iterations to run, defaults to 2000", 0},
                 // Use one empty struct to mark the end of the options.
                 {}
@@ -203,6 +202,6 @@ main(int argc, char **argv)
         ordering.resize(how_many);
         for (unsigned int index : ordering)
         {
-                cout << sentences[index].text << ' ';
+                cout << sentences[index].text;
         }
 }

@@ -11,11 +11,11 @@
 Sentence::Sentence(const string &text)
         : text(text)
 {
-        extract_words(text);
+        extract_words();
 }
 
 void
-Sentence::extract_words(const string &text)
+Sentence::extract_words()
 {
         string s;
         istringstream wordstream(text);
@@ -26,7 +26,7 @@ Sentence::extract_words(const string &text)
 }
 
 const string
-Sentence::normalize_word(string &str)
+Sentence::normalize_word(const string &str)
 {
         string normalized = str;
 
@@ -39,4 +39,55 @@ Sentence::normalize_word(string &str)
         // Remove any posessives or punctuation.
         const regex cleanup("('s)|([[:punct:]]+)|([[:space:]]+)");
         return regex_replace(normalized, cleanup, "");
+}
+
+const vector<Sentence>
+Sentence::to_sentences(const string &text)
+{
+        const std::regex eof_sentence("[.!\?]");
+        std::vector<Sentence> sentences;
+
+        /*
+         * Split on regex for end of sentence, and generate sentence strings.
+         * We use separate iterators for the sentence and the terminator
+         * associated with each sentence so that we can extract both.
+         */
+
+        std::sregex_token_iterator sentence_iter(
+                text.begin(),
+                text.end(),
+                eof_sentence,
+                -1);
+        std::sregex_token_iterator terminator_iter(
+                text.begin(),
+                text.end(),
+                eof_sentence,
+                0);
+        std::sregex_token_iterator end;
+
+        /* Add all sentences. */
+        while (sentence_iter != end)
+        {
+                string sentence_text = *sentence_iter;
+                if (sentence_text.length() > 0)
+                {
+                        string sentence_terminator;
+                        if (terminator_iter != end)
+                        {
+                                sentence_terminator = *terminator_iter;
+                        } else {
+                                sentence_terminator = "";
+                        }
+                        sentences.push_back(
+                                Sentence(sentence_text + sentence_terminator)
+                                );
+                }
+                sentence_iter++;
+                if (terminator_iter != end)
+                {
+                        terminator_iter++;
+                }
+        }
+
+        return sentences;
 }

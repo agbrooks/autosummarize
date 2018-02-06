@@ -12,12 +12,14 @@ class Sentence {
 public:
         explicit Sentence(const string &text);
 
-        const string &text;
+        const string text;
         vector<string> words;
 
+        static const vector<Sentence> to_sentences(const string &text);
+
 private:
-        void extract_words(const string &text);
-        const string normalize_word(string &str);
+        void extract_words();
+        static const string normalize_word(const string &str);
 
 };
 

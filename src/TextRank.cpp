@@ -38,15 +38,18 @@ void
 TextRank::update_scores()
 {
         #pragma omp parallel for
-        for (unsigned int i = 0; i < scores.size(); i++)
+        for (unsigned int i = 0; i < sparsetences.size(); i++)
         {
                 scores[i] = 0;
-                for (unsigned int j = 0; i < scores.size(); j++)
+                for (unsigned int j = 0; j < sparsetences.size(); j++)
                 {
                         if (i == j) continue;
-                        scores[i] += similarities[i][j]
-                                   / sum_similarities[j]
-                                   * old_scores[j];
+                        if (sum_similarities[j] != 0.0)
+                        {
+                                scores[i] += similarities[i][j]
+                                           / sum_similarities[j]
+                                           * old_scores[j];
+                        }
                 }
         }
 }
@@ -54,6 +57,15 @@ TextRank::update_scores()
 void
 TextRank::compute_order()
 {
+        /* Initialize the score vectors */
+        old_scores.resize(sparsetences.size());
+        scores.resize(sparsetences.size());
+        for (auto &score : old_scores)
+        {
+                score = 1.0;
+        }
+
+        /* Keep updating the scores until we converge or give up. */
         unsigned long iter = 0;
         do
         {
@@ -62,13 +74,14 @@ TextRank::compute_order()
                 old_scores = scores;
         } while (!has_converged() && iter < max_iter);
 
+        /* From the scores, produce an order. */
         order.resize(scores.size());
         for (unsigned int i = 0; i < order.size(); i++)
         {
                 order[i] = i;
         }
 
-        sort(order.begin(),order.end(),
+        sort(order.begin(), order.end(),
                 [this](size_t i, size_t j)
                 {
                         return scores[i] < scores[j];
@@ -82,9 +95,10 @@ TextRank::compute_similarities()
         /* Expand the similarities matrices to the correct size. */
         similarities.resize(sparsetences.size());
         sum_similarities.resize(sparsetences.size());
-        for (auto &v : similarities)
+        for (unsigned int i = 0; i < sparsetences.size(); i++)
         {
-                v.resize(sparsetences.size());
+                vector<double> similarity_column(sparsetences.size());
+                similarities[i] = similarity_column;
         }
 
         /* Compute inter-sentence similarity. */
