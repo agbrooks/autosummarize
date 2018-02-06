@@ -21,6 +21,7 @@ AC_CHECK_HEADER_STDBOOL
 
 # Checks for typedefs, structures, and compiler characteristics.
 AX_CHECK_COMPILE_FLAG([-std=c++14])
+AX_CHECK_COMPILE_FLAG([-fopenmp])
 
 # Checks for library functions.
 AC_CHECK_FUNCS([floor])

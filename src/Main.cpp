@@ -48,7 +48,7 @@ public:
 
 private:
         static constexpr bool         default_verbose      = false;
-        static constexpr double       default_compression  = 0.35;
+        static constexpr double       default_compression  = -1.0;
         static constexpr double       default_pct_keywords = 1.0;
         static constexpr double       default_dee          = 0.85;
         static constexpr double       default_tolerance    = 1e-10;
@@ -103,6 +103,11 @@ private:
                         opts->textfile = arg;
                         break;
                 case ARGP_KEY_END:
+                        if (opts->compression == -1.0)
+                        {
+                                cout << "Please specify a compression option.\n";
+                                argp_usage(state);
+                        }
                         opts->validate();
                         break;
                 default:
@@ -128,9 +133,9 @@ ProgramOptions::ProgramOptions(int argc, char **argv)
          * C++17 changes this behavior, but we're waiting until then.
          */
         static constexpr struct argp_option options[] = {
-                {"compression", 'c', "percent (as float)", 0,
-                 "percentage of sentences to retain, defaults to 0.35", 0},
-                {"keywords", 'k', 0, 0,
+                {"compression", 'c', "(float in (0, 1])", 0,
+                 "percentage of sentences to retain", 0},
+                {"keywords", 'k', "(float in (0, 1])", 0,
                  "percentage of words to retain as sentence keywords, defaults to 1.0", 0},
                 {"d", 'd', "float", 0,
                  "'d' parameter for TextRank, defaults to 0.85", 0},
