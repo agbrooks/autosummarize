@@ -13,6 +13,9 @@ KeywordExtractor::KeywordExtractor(double pct_keywords)
         words_added = true;
 }
 
+/**
+ * Consume all words in a sentence.
+ */
 void
 KeywordExtractor::consume(const Sentence &s)
 {
@@ -22,6 +25,10 @@ KeywordExtractor::consume(const Sentence &s)
         }
 }
 
+/**
+ * Consume a single word, counting how many times we've seen it and associating
+ * it with a unique numerical id.
+ */
 void
 KeywordExtractor::consume(const string &word)
 {
@@ -38,18 +45,32 @@ KeywordExtractor::consume(const string &word)
         words_added = true;
 }
 
+/**
+ * Find the id associated with a unique word.
+ *
+ * This assumes that the id in question has been assigned to a word.
+ */
 unsigned int
 KeywordExtractor::lookup_id(const string &word)
 {
         return string_table[word];
 }
 
+/**
+ * Find the word associated with a unique id.
+ *
+ * This assumes that the id in question has been assigned to a word.
+ */
 const string
 KeywordExtractor::lookup_word(unsigned int id)
 {
         return inverse_table[id];
 }
 
+/**
+ * Returns the ids associated with extracted keywords. If any have been added
+ * since the last extraction, re-extract them.
+ */
 const vector<unsigned int>
 KeywordExtractor::keyword_ids()
 {
@@ -60,6 +81,10 @@ KeywordExtractor::keyword_ids()
         return keyword_id_list;
 }
 
+/**
+ * Returns extracted keywords. If any have been added since the last extraction,
+ * re-extract them.
+ */
 const vector<string>
 KeywordExtractor::keywords()
 {
@@ -70,6 +95,12 @@ KeywordExtractor::keywords()
         return keyword_list;
 }
 
+/**
+ * Return true if the word provided is a keyword.
+ *
+ * Note that all keywords are stored without punctuation or whitespace, in
+ * lowercase.
+ */
 bool
 KeywordExtractor::is_keyword(const string &word)
 {
@@ -77,6 +108,9 @@ KeywordExtractor::is_keyword(const string &word)
         return std::find(kws.begin(), kws.end(), word) != kws.end();
 }
 
+/**
+ * Return true if the keyword_id specified is a keyword.
+ */
 bool
 KeywordExtractor::is_keyword_id(unsigned int id)
 {
@@ -84,20 +118,30 @@ KeywordExtractor::is_keyword_id(unsigned int id)
         return std::find(ids.begin(), ids.end(), id) != ids.end();
 }
 
+/**
+ * Count the number of unique words that the KeywordExtractor has seen.
+ */
 unsigned int
 KeywordExtractor::unique_words()
 {
         return next_index;
 }
 
-/* Private methods */
+/* PRIVATE METHODS */
 
+/**
+ * Return true if a given keyword ID is among the 'ignorable' keywords.
+ */
 bool
 KeywordExtractor::is_ignorable_id(unsigned int id)
 {
         return is_ignorable_word(inverse_table[id]);
 }
 
+/**
+ * Look up the id associated with a given word in the keyword extractor.
+ * If the id does not exist, create it.
+ */
 unsigned int
 KeywordExtractor::lookup_or_add_word(const string &word)
 {
@@ -110,6 +154,12 @@ KeywordExtractor::lookup_or_add_word(const string &word)
         return string_table[word];
 }
 
+/**
+ * Is a word 'ignorable?'
+ * 'Ignorable' words are common, but impart very little meaning to a sentence.
+ * For this reason, we may want to identify words which can't reasonably be
+ * part of keywords.
+ */
 bool
 KeywordExtractor::is_ignorable_word(const string &word)
 {
@@ -154,6 +204,11 @@ KeywordExtractor::is_ignorable_word(const string &word)
         return faux_amis.count(word) > 0;
 }
 
+/**
+ * After 'consuming' a certain number of words, figure out which actually
+ * constitute keywords. For now, this process is based on simple frequency
+ * analysis.
+ */
 void
 KeywordExtractor::recompute_keywords()
 {
@@ -168,7 +223,7 @@ KeywordExtractor::recompute_keywords()
         keyword_list.clear();
 
         /* 'Inverse' of count map. */
-        unique_ptr<map<Count, IdVec>> inv_counts;
+        auto inv_counts = make_unique<map<Count, IdVec>>();
 
         /* Populate inv_counts with inverse of counts. */
         for (pair<const Id, Count> p : counts)
@@ -176,7 +231,7 @@ KeywordExtractor::recompute_keywords()
                 unsigned int id        = p.first;
                 unsigned int frequency = p.second;
 
-                if (!inv_counts->count(p.second))
+                if (!inv_counts->count(frequency))
                 {
                         vector<Id> singleton{id};
                         inv_counts->emplace(frequency, singleton);

@@ -9,11 +9,19 @@
 
 #include "config.h"
 
+/**
+ * The KeywordExtractor `consume`s sentences or words and attempts to determine
+ * which are keywords. It relies on a combination of a 'blacklist' of 'ignorable'
+ * words (eg, 'the' will probably never be a good keyword choice) and frequency
+ * analysis.
+ *
+ */
 class KeywordExtractor {
 public:
         explicit KeywordExtractor(double pct_keywords);
 
-        unsigned int               pct_keywords;
+        /* Percentage of words appearing suspected to be keywords */
+        double                     pct_keywords;
 
         void                       consume(const Sentence &s);
         void                       consume(const string &word);
@@ -26,13 +34,20 @@ public:
         unsigned int               unique_words();
 
 private:
+        /* Count of numeric word id -> times seen */
         unordered_map<unsigned int, unsigned int> counts;
+        /* Next numeric word id */
         unsigned int                              next_index;
+        /* Mapping relating words to their numeric ids */
         unordered_map<string, unsigned int>       string_table;
+        /* Mapping relating numeric ids to their words */
         unordered_map<unsigned int, string>       inverse_table;
 
+        /* Keywords found */
         vector<string>                            keyword_list;
+        /* Keyword IDs found */
         vector<unsigned int>                      keyword_id_list;
+        /* Whether or not words have been added since we last found keywords */
         bool                                      words_added;
 
         void         recompute_keywords(void);

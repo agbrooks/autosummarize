@@ -5,6 +5,13 @@
 
 #include "config.h"
 
+/**
+ * A `TextRank` performs the actual TextRank algorithm over a vector of
+ * sentences.
+ *
+ * The resulting `TextRank::order` provides the ranked importance of the
+ * sentences, by index.
+ */
 class TextRank {
 public:
         TextRank(
@@ -15,10 +22,21 @@ public:
                 double                 tolerance
                 );
 
+        /* Indexes of sentences, from most to least important. */
         vector<unsigned int> order;
+        /* Maximum number of iterations performed for scoring. */
         const unsigned long  max_iter;
+        /* Percentage of words expected to be keywords. */
         const double         pct_keywords;
+        /*
+         * PageRank / TextRank 'd' parameter. Higher values mean that important
+         * sentences more readily disperse their influence amongst related
+         * sentences.
+         */
         const double         dee;
+        /*
+         * Tolerance threshold used to declare convergence of the scoring loop.
+         */
         const double         tolerance;
 
 private:

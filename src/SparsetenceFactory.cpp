@@ -2,10 +2,16 @@
 
 #include "SparsetenceFactory.hpp"
 
-SparsetenceFactory::SparsetenceFactory(unsigned int num_keywords)
-        : KeywordExtractor(num_keywords)
+SparsetenceFactory::SparsetenceFactory(double pct_keywords)
+        : KeywordExtractor(pct_keywords)
 { }
 
+/**
+ * From a `Sentence`, construct a `Sparsetence`.
+ *
+ * This function assumes that this `Sentence`, and all others that way include
+ * related keywords, have already been `consume`d by the `KeywordExtractor`.
+ */
 const Sparsetence
 SparsetenceFactory::sparsify(const Sentence &sentence)
 {
@@ -23,6 +29,12 @@ SparsetenceFactory::sparsify(const Sentence &sentence)
         return Sparsetence(word_ids);
 }
 
+/**
+ * From a vector of `Sentences`, construct several `Sparsetence`s.
+ *
+ * This function assumes that all `Sentences` of interest have already been
+ * `consume`d by the underlying `KeywordExtractor`.
+ */
 const vector<Sparsetence>
 SparsetenceFactory::sparsify(const vector<Sentence> &sentences)
 {

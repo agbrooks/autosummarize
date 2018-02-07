@@ -8,39 +8,24 @@
 
 #include "Sentence.hpp"
 
+/**
+ * Construct a sentence from the text in that sentence, including trailing
+ * punctuation.
+ *
+ * `text` must be non-NULL.
+ */
 Sentence::Sentence(const string &text)
         : text(text)
 {
         extract_words();
 }
 
-void
-Sentence::extract_words()
-{
-        string s;
-        istringstream wordstream(text);
-        while (wordstream >> s)
-        {
-                words.push_back(normalize_word(s));
-        }
-}
-
-const string
-Sentence::normalize_word(const string &str)
-{
-        string normalized = str;
-
-        // Downcase the string.
-        for (char &c : normalized)
-        {
-                c = tolower(c);
-        }
-
-        // Remove any posessives or punctuation.
-        const regex cleanup("('s)|([[:punct:]]+)|([[:space:]]+)");
-        return regex_replace(normalized, cleanup, "");
-}
-
+/**
+ * From a string representing the text of several sentences, produce several
+ * Sentences.
+ *
+ * text is assumed non-NULL.
+ */
 const vector<Sentence>
 Sentence::to_sentences(const string &text)
 {
@@ -90,4 +75,41 @@ Sentence::to_sentences(const string &text)
         }
 
         return sentences;
+}
+
+/**
+ * Initialize the Sentence's 'words' vector from its text.
+ */
+void
+Sentence::extract_words()
+{
+        string s;
+        istringstream wordstream(text);
+        while (wordstream >> s)
+        {
+                words.push_back(normalize_word(s));
+        }
+}
+
+/**
+ * 'Normalize' a word in a sentence.
+ * This entails converting it to lowercase, then removing all punctuation
+ * and whitespace.
+ *
+ * The word in question is assumed non-NULL.
+ */
+const string
+Sentence::normalize_word(const string &str)
+{
+        string normalized = str;
+
+        // Downcase the string.
+        for (char &c : normalized)
+        {
+                c = tolower(c);
+        }
+
+        // Remove any posessives or punctuation.
+        const regex cleanup("('s)|([[:punct:]]+)|([[:space:]]+)");
+        return regex_replace(normalized, cleanup, "");
 }

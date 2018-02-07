@@ -9,6 +9,11 @@
 
 #include "config.h"
 
+/**
+ * ProgramOptions encapsulates all arguments parsing tasks. Its constructor
+ * performs the actual parsing, and its public members are the parsed
+ * quantities.
+ */
 class ProgramOptions
 {
 public:
@@ -22,6 +27,13 @@ public:
         unsigned long max_iter;
         char          *textfile;
 
+        /**
+         * Determine whether the parsed program options are actually
+         * valid.
+         *
+         * If not, print an informative message to stderr and exit with a
+         * non-zero return code.
+         */
         void validate() const
         {
                 if (compression <= 0.0 || compression > 1.0)
@@ -47,6 +59,11 @@ public:
         }
 
 private:
+        /*
+         * Default values follow. Note that compression is -1.0, a nonsensical
+         * value. If left to its default, `parse_opt` will realize that it has
+         * been unspecified and print usage information.
+         */
         static constexpr bool         default_verbose      = false;
         static constexpr double       default_compression  = -1.0;
         static constexpr double       default_pct_keywords = 1.0;
@@ -55,6 +72,10 @@ private:
         static constexpr unsigned int default_max_iter     = 2000;
         static constexpr char         *default_textfile    = NULL;
 
+        /**
+         * argp `parse_opt` parser, which handles each argument or option
+         * provided.
+         */
         static error_t parse_opt(int key, char *arg, struct argp_state *state)
         {
                 ProgramOptions *opts = static_cast<ProgramOptions *>(state->input);
@@ -100,12 +121,14 @@ private:
                         }
                         break;
                 case ARGP_KEY_ARG:
+                        /* A positional argument */
                         opts->textfile = arg;
                         break;
                 case ARGP_KEY_END:
+                        /* End of all arguments */
                         if (opts->compression == -1.0)
                         {
-                                cout << "Please specify a compression option.\n";
+                                cerr << "Please specify a compression option.\n";
                                 argp_usage(state);
                         }
                         opts->validate();
@@ -164,6 +187,10 @@ ProgramOptions::ProgramOptions(int argc, char **argv)
         }
 }
 
+/**
+ * Load a `textfile` from a given path and return a string with its contents.
+ * If the `textfile` is a null pointer, read from stdin.
+ */
 const std::string
 load_text(char *textfile)
 {

@@ -8,6 +8,9 @@
 
 using namespace std;
 
+/**
+ * A Sentence associates a sentence text with its normalized constituent words.
+ */
 class Sentence {
 public:
         explicit Sentence(const string &text);
