@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <unordered_set>
 #include <sstream>
 #include <argp.h>
 #include <unistd.h>
@@ -228,12 +229,19 @@ main(int argc, char **argv)
                            opts.max_iter,
                            opts.tolerance);
 
-        /* Print the top n sentences to stdout. */
+        /* Print the top n sentences to stdout, in order. */
         const int how_many = std::ceil(sentences.size() * opts.compression);
         vector<unsigned int> ordering = text_rank.order;
         ordering.resize(how_many);
-        for (unsigned int index : ordering)
+        unordered_set<unsigned int> set_ordering(
+                ordering.begin(), ordering.end()
+                );
+
+        for (unsigned int i = 0; i < sentences.size(); i++)
         {
-                cout << sentences[index].text;
+                if (set_ordering.find(i) != set_ordering.end())
+                {
+                        cout << sentences[i].text;
+                }
         }
 }
